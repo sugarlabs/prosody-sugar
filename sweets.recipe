@@ -1,0 +1,17 @@
+[DEFAULT]
+implement = Server:%(major)s/%(name)s
+name      = prosody-sugar
+summary   = Core services for Sugar users
+license   = MIT
+homepage  = http://wiki.sugarlabs.org/go/The_Server
+
+major     = 1
+version   = %(major)s.0
+stability = stable
+
+[Package]
+source    = %(name)s-%(version)s.tar.gz
+requires  = prosody
+
+[Build]
+install   =
