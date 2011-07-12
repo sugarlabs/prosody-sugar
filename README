@@ -16,6 +16,12 @@ https://bugs.freedesktop.org/show_bug.cgi?id=37897 issue. This plugin should
 be used instead of `muc` until issue will be fixed in `telepathy-gabble` or in
 `Prosody`.
 
+mod_sugar_saslauth
+------------------
+Original `saslauth` plugin with preventing multiple auth from the same jid,
+See `sm_make_authenticated`.
+TODO more lighwight approach.
+
 mod_sugar_roster
 ----------------
 Provides global roster when anyone see all registered accounts.

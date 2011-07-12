@@ -14,11 +14,6 @@ local function inject_sugar_roster(username, host, roster)
 	local bare_jid = username.."@"..host;
 	local path = string.sub(datamanager.getpath(nil, host, "accounts", ""), 0, -2);
 
-    if hosts[host].sessions[username] then
-        module:log("info", "Multiple connections for %s", bare_jid);
-        return;
-    end
-
     local mode = lfs.attributes(path, "mode");
     if not mode then
         module:log("debug", "Assuming empty "..path);
