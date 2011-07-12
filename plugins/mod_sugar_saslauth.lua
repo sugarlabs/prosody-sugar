@@ -32,12 +32,11 @@ local xmlns_stanzas ='urn:ietf:params:xml:ns:xmpp-stanzas';
 
 local function sm_make_authenticated(session, username)
 	username = nodeprep(username);
-    if hosts[session.host].sessions[username] then
-        module:log("info", "Multiple connections for %s@%s", username, session.host);
+    if hosts[module.host].sessions[username] then
+        module:log("info", "Multiple connections for %s@%s", username, module.host);
         return nil, "Multiple connections";
     end
-    _sm_make_authenticated(session, username);
-
+    return _sm_make_authenticated(session, username);
 end
 
 local function build_reply(status, ret, err_msg)
