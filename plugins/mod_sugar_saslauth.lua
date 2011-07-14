@@ -20,6 +20,7 @@ local nodeprep = require "util.encodings".stringprep.nodeprep;
 local usermanager_get_sasl_handler = require "core.usermanager".get_sasl_handler;
 local tostring = tostring;
 local hosts = hosts;
+local bare_sessions = bare_sessions;
 
 local secure_auth_only = module:get_option("c2s_require_encryption") or module:get_option("require_encryption");
 local allow_unencrypted_plain_auth = module:get_option("allow_unencrypted_plain_auth")
@@ -32,8 +33,9 @@ local xmlns_stanzas ='urn:ietf:params:xml:ns:xmpp-stanzas';
 
 local function sm_make_authenticated(session, username)
 	username = nodeprep(username);
-    if hosts[module.host].sessions[username] then
-        module:log("info", "Multiple connections for %s@%s", username, module.host);
+    jid = username.."@"..module.host;
+    if bare_sessions[jid] then
+        module:log("info", "Multiple connections for %s", jid)
         return nil, "Multiple connections";
     end
     return _sm_make_authenticated(session, username);
