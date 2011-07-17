@@ -71,7 +71,7 @@ local function handle_status(session, status, ret, err_msg)
 		else
 			module:log("warn", "SASL succeeded but username was invalid");
 			session.sasl_handler = session.sasl_handler:clean_clone();
-			return "failure", "not-authorized", "User authenticated successfully, but username was invalid";
+			return "failure", "not-authorized", "User authenticated successfully, but access is denied: "..err;
 		end
 	end
 	return status, ret, err_msg;
