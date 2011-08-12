@@ -1,9 +1,9 @@
 [DEFAULT]
 implement = Server:%(major)s/%(name)s
 name      = prosody-sugar
-summary   = Core services for Sugar users
+summary   = Sugar Server specific plugins for Prosody
 license   = MIT
-homepage  = http://wiki.sugarlabs.org/go/The_Server
+homepage  = http://wiki.sugarlabs.org/go/The_Server/Prosody
 
 major     = 1
 version   = 0.8.2
