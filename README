@@ -4,34 +4,4 @@ Introduction
 This projects contains plugins for Prosody jabber server that are specific
 for Sugar usage.
 
-Plugins
-=======
-
-Plugins are tested agains Prosody 0.8.2 release.
-
-mod_sugar_muc
--------------
-The only difference in comparing with original `muc` plugin is workaround for
-https://bugs.freedesktop.org/show_bug.cgi?id=37897 issue. This plugin should
-be used instead of `muc` until issue will be fixed in `telepathy-gabble` or in
-`Prosody`.
-
-mod_sugar_saslauth
-------------------
-Original `saslauth` plugin with preventing multiple auth from the same jid,
-See `sm_make_authenticated`.
-TODO more lighwight approach.
-
-mod_sugar_roster
-----------------
-Provides global roster when anyone see all registered accounts.
-
-Configuration
-=============
-
-See http://git.sugarlabs.org/server/base/blobs/master/etc/000.base/prosody.d/.
-
-Resources
-=========
-
-http://git.sugarlabs.org/server/prosody-sugar
+See http://wiki.sugarlabs.org/go/The_Server/Prosody for details

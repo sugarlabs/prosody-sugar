@@ -1,3 +1,4 @@
+-- Copyright (C) 2011, Aleksey Lim
 -- 
 -- This project is MIT/X11 licensed. Please see the
 -- COPYING file in the source package for more information.
@@ -48,7 +49,7 @@ local function set_nick(username, host, nick)
     end
 end
 
-local function populate_sugar_roster_on_appearing(event)
+local function set_nick_on_appearing(event)
     local session, stanza = event.origin, event.stanza;
 
     if not stanza.attr.to and not stanza.attr.type and not session.presence then
@@ -78,7 +79,10 @@ local function inject_sugar_roster(username, host, roster)
     --appeared_buddy.groups = { [group_name] = true };
 
     for i, buddy in pairs(sugar_roster) do
-        if i ~= jid then
+        if not bare_sessions[i] then
+            -- Workaround to avoid #2963
+            sugar_roster[i] = nil;
+        elseif i ~= jid then
             roster[i] = buddy;
             if bare_sessions[i] then
                 bare_sessions[i].roster[jid] = appeared_buddy;
@@ -107,7 +111,7 @@ local function datastore_callback(username, host, datastore, data)
 end
 
 function module.load()
-    module:hook("presence/bare", populate_sugar_roster_on_appearing, 1000);
+    module:hook("presence/bare", set_nick_on_appearing, 1000);
 	module:hook("roster-load", inject_sugar_roster);
 	datamanager.add_callback(datastore_callback);
 end

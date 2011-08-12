@@ -1,8 +1,10 @@
-.. _AUTHORS:
-
 Contributors
 ============
 Aleksey Lim <alsroot@member.fsf.org>
+
+Prosody plugins authors
+-----------------------
+See AUTHORS in Prosody sources tree.
 
 Maintainers
 -----------

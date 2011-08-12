@@ -213,7 +213,6 @@ function room_mt:send_history(to, stanza)
 end
 
 function room_mt:get_disco_info(stanza)
-	local count = 0; for _ in pairs(self._occupants) do count = count + 1; end
 	return st.reply(stanza):query("http://jabber.org/protocol/disco#info")
 		:tag("identity", {category="conference", type="text", name=self:get_name()}):up()
 		:tag("feature", {var="http://jabber.org/protocol/muc"}):up()
@@ -225,8 +224,7 @@ function room_mt:get_disco_info(stanza)
 		:tag("feature", {var=self._data.whois ~= "anyone" and "muc_semianonymous" or "muc_nonanonymous"}):up()
 		:add_child(dataform.new({
 			{ name = "FORM_TYPE", type = "hidden", value = "http://jabber.org/protocol/muc#roominfo" },
-			{ name = "muc#roominfo_description", label = "Description"},
-			{ name = "muc#roominfo_occupants", label = "Number of occupants", value = tostring(count) }
+			{ name = "muc#roominfo_description", label = "Description"}
 		}):form({["muc#roominfo_description"] = self:get_description()}, 'result'))
 	;
 end
@@ -610,6 +608,7 @@ function room_mt:get_form_layout()
 			value = self:is_members_only()
 		},
         -- Workaround for https://bugs.freedesktop.org/show_bug.cgi?id=37897
+        -- https://code.google.com/p/lxmppd/issues/detail?id=254
 		{
 			name = 'muc#roomconfig_allowinvites',
 			type = 'boolean',
@@ -813,7 +812,7 @@ function room_mt:handle_to_room(origin, stanza) -- presence changes and groupcha
 			elseif stanza.attr.type == "set" then
 				local child = stanza.tags[1].tags[1];
 				if not child then
-					origin.send(st.error_reply(stanza, "modify", "bad-request"));
+					origin.send(st.error_reply(stanza, "auth", "bad-request"));
 				elseif child.name == "destroy" then
 					local newjid = child.attr.jid;
 					local reason, password;

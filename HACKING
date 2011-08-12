@@ -6,7 +6,7 @@ Useful notes how to contribute to the project.
 Send patches
 ------------
 Create your patches using ``git format`` command and send them to all maintainers
-from the :ref:`AUTHORS <AUTHORS>` file. The easiest way it just using ``git send-email`` command.
+from the :doc:`AUTHORS <AUTHORS>` file. The easiest way it just using ``git send-email`` command.
 
 Gitorious forks
 ---------------

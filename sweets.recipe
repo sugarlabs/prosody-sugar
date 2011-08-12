@@ -1,11 +1,11 @@
 [DEFAULT]
-implement = Server:%(server_major)s/%(name)s
+implement = Server:%(major)s/%(name)s
 name      = prosody-sugar
 summary   = Core services for Sugar users
 license   = MIT
 homepage  = http://wiki.sugarlabs.org/go/The_Server
 
-server_major = 1
+major     = 1
 version   = 0.8.2
 stability = stable
 
@@ -14,4 +14,5 @@ source    = %(name)s-%(version)s.tar.gz
 requires  = prosody
 
 [Build]
-install   =
+install   = install -m 0755 -d %(DESTDIR)s/%(LIBDIR)s/prosody/modules &&
+            cp -r plugins/* %(DESTDIR)s/%(LIBDIR)s/prosody/modules/
