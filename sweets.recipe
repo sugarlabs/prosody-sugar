@@ -13,6 +13,9 @@ stability = stable
 source    = %(name)s-%(version)s.tar.gz
 requires  = prosody
 
+[Archive]
+arch      = any
+
 [Build]
 install   = install -m 0755 -d %(DESTDIR)s/%(LIBDIR)s/prosody/modules &&
             cp -r plugins/* %(DESTDIR)s/%(LIBDIR)s/prosody/modules/
