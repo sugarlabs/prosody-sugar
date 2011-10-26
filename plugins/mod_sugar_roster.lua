@@ -80,7 +80,7 @@ local function inject_sugar_roster(username, host, roster)
 
     for i, buddy in pairs(sugar_roster) do
         if not bare_sessions[i] then
-            -- Workaround to avoid #2963
+            -- XXX Workaround to avoid #2963
             sugar_roster[i] = nil;
         elseif i ~= jid then
             roster[i] = buddy;
