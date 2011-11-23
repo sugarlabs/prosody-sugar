@@ -12,6 +12,7 @@ stability = stable
 [Package]
 source    = %(name)s-%(version)s.tar.gz
 requires  = prosody
+install   = /etc/init.d/prosody restart;
 
 [Archive]
 arch      = any
