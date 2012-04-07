@@ -1,4 +1,4 @@
--- Copyright (C) 2011, Aleksey Lim
+-- Copyright (C) 2011-2012, Aleksey Lim
 -- 
 -- This project is MIT/X11 licensed. Please see the
 -- COPYING file in the source package for more information.
@@ -7,6 +7,7 @@
 local datamanager = require "util.datamanager";
 local jid_bare = require "util.jid".bare;
 local st = require "util.stanza"
+local jid_split = require "util.jid".split;
 
 local bare_sessions = bare_sessions;
 
@@ -21,8 +22,7 @@ local function publish_card(username, host, card)
     local appeared_jid = username.."@"..host;
     local appeared_buddy = sugar_roster[appeared_jid];
 
-    if not card['nick'] or not card['color'] or
-            not appeared_buddy or appeared_buddy.published then
+    if not appeared_buddy or appeared_buddy.published then
         return;
     end
 
@@ -38,6 +38,9 @@ local function publish_card(username, host, card)
                     :tag('items', {node="http://laptop.org/xmpp/buddy-properties"})
                         :tag('item')
                             :tag('properties', {xmlns="http://laptop.org/xmpp/buddy-properties"})
+                                :tag('property', {type='bytes', name='key'})
+                                    :text(card['key'])
+                                :up()
                                 :tag('property', {type='str', name='nick'})
                                     :text(card['nick'])
                                 :up()
@@ -65,7 +68,7 @@ local function publish_card_on_appearing(event)
             publish_card(session.username, session.host, card);
         else
             -- card is not yet registered, that might happen right after
-            -- user registration, will hook that user in populate_cards
+            -- user registration, will hook that user in set_cards
         end
     end
 end
@@ -105,7 +108,7 @@ local function inject_sugar_roster(username, host, roster)
     sugar_roster[jid] = appeared_buddy;
 end
 
-local function populate_cards(event)
+local function set_cards(event)
 	local session, stanza = event.origin, event.stanza;
 	local payload = stanza.tags[1];
 
@@ -125,7 +128,8 @@ local function populate_cards(event)
     elseif node == 'http://laptop.org/xmpp/buddy-properties' then
         payload = payload.tags[1]
         for _, prop in pairs(payload.tags) do
-            if prop.attr.name == 'nick' or prop.attr.name == 'color' then
+            if prop.attr.name == 'nick' or prop.attr.name == 'color' or
+                    prop.attr.name == 'key' then
                 new_card[prop.attr.name] = prop:get_text();
             end
         end
@@ -149,6 +153,60 @@ local function populate_cards(event)
     publish_card(session.username, session.host, card);
 end
 
+local function get_cards(event)
+	local session, stanza = event.origin, event.stanza;
+	local payload = stanza.tags[1];
+
+	if stanza.attr.type ~= 'get' or not stanza.attr.to or
+            not payload:get_child('items') then
+        return;
+    end
+
+	local username, host = jid_split(stanza.attr.to);
+    local card = st.deserialize(datamanager.load(username, host, 'sugar_card'));
+    if not card then
+        module:log('info', 'Not %s in sugar roster', username)
+        return
+    end
+
+    node = payload:get_child('items').attr.node
+    if node == 'http://jabber.org/protocol/nick' then
+        local stanza = st.reply(stanza)
+            :tag('pubsub', {xmlns='http://jabber.org/protocol/pubsub'})
+                :tag('items', {node=node})
+                    :tag('item')
+                        :tag('nick', {xmlns="http://jabber.org/protocol/nick"})
+                            :text(card['nick'])
+                        :up()
+                    :up()
+                :up()
+            :up();
+        session.send(stanza);
+        return true;
+    elseif node == 'http://laptop.org/xmpp/buddy-properties' then
+        local stanza = st.reply(stanza)
+            :tag('pubsub', {xmlns='http://jabber.org/protocol/pubsub'})
+                :tag('items', {node=node})
+                    :tag('item')
+                        :tag('properties', {xmlns="http://laptop.org/xmpp/buddy-properties"})
+                            :tag('property', {type='bytes', name='key'})
+                                :text(card['key'])
+                            :up()
+                            :tag('property', {type='str', name='nick'})
+                                :text(card['nick'])
+                            :up()
+                            :tag('property', {type='str', name='color'})
+                                :text(card['color'])
+                            :up()
+                        :up()
+                    :up()
+                :up()
+            :up();
+        session.send(stanza);
+        return true;
+    end
+end
+
 local function datastore_callback(username, host, datastore, data)
     if datastore == "roster" then
         -- No need in saving roster in sugar mode, it is temporal
@@ -160,11 +218,12 @@ end
 
 function module.load()
     module:hook("presence/bare", publish_card_on_appearing, 1000);
-    module:hook("iq/bare/http://jabber.org/protocol/pubsub:pubsub", populate_cards, 1000);
-	module:hook("roster-load", inject_sugar_roster);
-	datamanager.add_callback(datastore_callback);
+    module:hook("iq/bare/http://jabber.org/protocol/pubsub:pubsub", set_cards, 1000);
+    module:hook("iq/bare/http://jabber.org/protocol/pubsub:pubsub", get_cards, 1000);
+    module:hook("roster-load", inject_sugar_roster);
+    datamanager.add_callback(datastore_callback);
 end
 
 function module.unload()
-	datamanager.remove_callback(datastore_callback);
+    datamanager.remove_callback(datastore_callback);
 end
