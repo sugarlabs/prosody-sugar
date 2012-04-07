@@ -44,7 +44,7 @@ end
 
 local function publish(session, from, node, id, item)
 	item.attr.xmlns = nil;
-	local disable = #item.tags ~= 1 or #item.tags[1] == 0;
+	local disable = #item.tags ~= 1;
 	if #item.tags == 0 then item.name = "retract"; end
 	local bare = session.username..'@'..session.host;
 	local stanza = st.message({from=bare, type='headline'})
