@@ -42,7 +42,7 @@ local function subscription_presence(user_bare, recipient)
     return true;
 end
 
-local function publish(session, node, id, item)
+local function publish(session, from, node, id, item)
 	item.attr.xmlns = nil;
 	local disable = #item.tags ~= 1 or #item.tags[1] == 0;
 	if #item.tags == 0 then item.name = "retract"; end
@@ -68,9 +68,20 @@ local function publish(session, node, id, item)
 
 	-- broadcast
     for recipient, _ in pairs(session.roster) do
-        stanza.attr.to = recipient;
-        core_post_stanza(session, stanza);
+        if recipient then
+            stanza.attr.to = recipient
+            module:log('debug', 'Publish from=%s to=%s node=%s id=%s item=%s',
+                    tostring(from), tostring(stanza.attr.to), tostring(node),
+                    tostring(id), tostring(item));
+            core_post_stanza(session, stanza);
+        end
     end
+
+    stanza.attr.to = from;
+    module:log('debug', 'Publish from=%s to=%s node=%s id=%s item=%s',
+            tostring(from), tostring(stanza.attr.to), tostring(node),
+            tostring(id), tostring(item));
+    core_post_stanza(session, stanza);
 end
 local function publish_all(user, recipient, session)
 	local d = data[user];
@@ -169,7 +180,7 @@ module:hook("iq/bare/http://jabber.org/protocol/pubsub:pubsub", function(event)
 			if payload and payload.name == "item" then -- <item>
 				local id = payload.attr.id;
 				session.send(st.reply(stanza));
-				publish(session, node, id, st.clone(payload));
+				publish(session, stanza.attr.from, node, id, st.clone(payload));
 				return true;
 			end
 		end
