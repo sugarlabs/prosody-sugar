@@ -197,6 +197,12 @@ module:hook("iq/bare/http://jabber.org/protocol/pubsub:pubsub", function(event)
 					requested_id = item.attr.id;
 				end
 			end
+            if not stanza.attr.to then
+                -- TODO Set `to` to avoid empty `from` in replies
+                -- Telepathy complains on "no sender"
+                -- Is it misbehaving introduced by sugar patch?
+                stanza.attr.to = session.username..'@'..session.host;
+            end
 			if node and user_data and user_data[node] then -- Send the last item
 				local id, item = unpack(user_data[node]);
 				if not requested_id or id == requested_id then
